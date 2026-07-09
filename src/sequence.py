@@ -1,10 +1,20 @@
 from Bio.Seq import Seq
 
-dna= Seq ("ATGCGTAGCTA")
+def get_sequence_length(sequence):
+    return len(sequence)
 
-print("DNA Sequence : ", dna)
-print("Sequence Length: ", len(dna))
-print("A :", dna.count("A"))
-print("T :", dna.count("T"))
-print("G :", dna.count("G"))
-print("C :", dna.count("C"))
+def count_nucleotides(sequence):
+    print("A: ", sequence.count("A"))
+    print("T: ", sequence.count("T"))
+    print("G: ", sequence.count("G"))
+    print("C: ", sequence.count("C"))
+
+dna= Seq("ATGCGTAGCTA")
+
+length= get_sequence_length(dna)
+
+print("DNA Sequence: ", dna)
+print("Length: ", length)
+
+count_nucleotides(dna)
+
