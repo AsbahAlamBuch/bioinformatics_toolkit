@@ -9,6 +9,17 @@ def count_nucleotides(sequence):
     print("G: ", sequence.count("G"))
     print("C: ", sequence.count("C"))
 
+#main function start
+
+def translate_rna(rna):
+    return rna.translate()
+
+
+def transcribe_dna(sequence):
+    rna = sequence.replace("T", "U")
+    return rna
+
+
 def reverse_complement(sequence):
 
     complements = {"A":"T",
@@ -36,6 +47,10 @@ dna= Seq("ATGCGTAGCTA")
 length= get_sequence_length(dna)
 gc_content = calculate_gc_content(dna)
 
+rna=transcribe_dna(dna)
+
+protein= translate_rna(rna)
+
 reversed_dna= reverse_sequence(dna)
 
 reverse_comp = reverse_complement(dna)
@@ -45,6 +60,9 @@ print("Length: ", length)
 print("Reversed Sequence: ", reversed_dna)
 print("GC Content: ", round(gc_content, 2), "%")
 print("Reverse Complement : ", reverse_comp)
+print("RNA Sequence: ", rna)
+print("Protein :", protein)
+
 
 count_nucleotides(dna)
 
