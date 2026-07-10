@@ -1,29 +1,50 @@
-from Bio.Seq import Seq
-from src.dna import *
-from src.protein import*
+from src.dna import (
+    get_sequence_length,
+    calculate_gc_content,
+    reverse_sequence,
+    reverse_complement,
+    transcribe_dna,
+    count_nucleotides,
+    find_motif
+)
 
+from src.protein import translate_rna
+from src.fasta import read_fasta
 
-dna= Seq("ATGCGTAGCTA")
+records = read_fasta("data/sample.fasta")
 
-length= get_sequence_length(dna)
-gc_content = calculate_gc_content(dna)
+for record in records:
+    dna = str(record.seq)
 
-rna=transcribe_dna(dna)
+    length = get_sequence_length(dna)
+    gc_content = calculate_gc_content(dna)
 
-protein= translate_rna(rna)
+    rna = transcribe_dna(dna)
+    protein = translate_rna(rna)
 
-reversed_dna= reverse_sequence(dna)
+    reversed_dna = reverse_sequence(dna)
+    reverse_comp = reverse_complement(dna)
 
-reverse_comp = reverse_complement(dna)
+    motif = "GTA"
+    positions = find_motif(dna, motif)
 
-print("DNA Sequence: ", dna)
-print("Length: ", length)
-print("Reversed Sequence: ", reversed_dna)
-print("GC Content: ", round(gc_content, 2), "%")
-print("Reverse Complement : ", reverse_comp)
-print("RNA Sequence: ", rna)
-print("Protein :", protein)
+    print("=" * 60)
+    print("Sequence ID:", record.id)
+    print("DNA:", dna)
+    print("Length:", length)
+    print("GC Content:", round(gc_content, 2), "%")
+    print("Reverse Sequence:", reversed_dna)
+    print("Reverse Complement:", reverse_comp)
+    print("RNA Sequence:", rna)
+    print("Protein:", protein)
 
+    print("Motif:", motif)
 
-count_nucleotides(dna)
+    if positions:
+        print("Found at positions:", positions)
+        print("Number of matches:", len(positions))
+    else:
+        print("Motif not found")
 
+    count_nucleotides(dna)
+    print()

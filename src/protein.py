@@ -1,2 +1,5 @@
+from Bio.Seq import Seq
+
+
 def translate_rna(rna):
-    return rna.translate()
+    return str(Seq(rna).translate())
