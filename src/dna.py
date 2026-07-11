@@ -58,3 +58,6 @@ def validate_dna(sequence):
 
     print("DNA sequence is valid.")
     return True
+
+def find_orfs(sequence):
+    pass
