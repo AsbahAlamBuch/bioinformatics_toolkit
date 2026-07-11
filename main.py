@@ -8,6 +8,7 @@ from src.dna import (
     find_motif,
     validate_dna,
     find_orfs,
+    find_restriction_sites,
 )
 
 from src.protein import translate_rna
@@ -39,6 +40,8 @@ for record in records:
 
     orfs = find_orfs(dna)
 
+    restriction_sites = find_restriction_sites(dna)
+
     print("=" * 60)
     print("Sequence ID:", record.id)
     print("DNA:", dna)
@@ -68,3 +71,12 @@ for record in records:
             print(seq)
     else:
         print("No ORFs found")
+
+
+print("\nRestriction Enzyme Sites")
+
+for enzyme, positions in restriction_sites.items():
+    if positions:
+        print(f"{enzyme}: Found at positions {positions}")
+    else:
+        print(f"{enzyme}: Not Found")

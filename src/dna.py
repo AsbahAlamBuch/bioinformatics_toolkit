@@ -80,3 +80,24 @@ def find_orfs(sequence):
                     break
 
     return orfs
+
+def find_restriction_sites(sequence):
+    enzymes = {
+        "EcoRI": "GAATTC",
+        "BamHI": "GGATCC",
+        "HindIII": "AAGCTT",
+        "NotI": "GCGGCCGC"
+    }
+
+    results = {}
+
+    for enzyme, site in enzymes.items():
+        positions = []
+
+        for i in range(len(sequence) - len(site) + 1):
+            if sequence[i:i+len(site)] == site:
+                positions.append(i + 1)
+
+        results[enzyme] = positions
+
+    return results
