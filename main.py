@@ -13,6 +13,8 @@ from src.dna import (
 from src.protein import translate_rna
 from src.fasta import read_fasta
 
+from src.alignment import global_alignment
+
 records = read_fasta("data/sample.fasta")
 
 for record in records:
@@ -68,3 +70,13 @@ for record in records:
             print(seq)
     else:
         print("No ORFs found")
+
+
+seq1 = "ATGCT"
+seq2 = "ATGTT"
+
+aligned1, aligned2, score = global_alignment(seq1, seq2)
+
+print(aligned1)
+print(aligned2)
+print(score)
