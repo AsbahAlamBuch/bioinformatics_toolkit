@@ -47,3 +47,14 @@ def find_motif(sequence, motif):
             positions.append(i + 1)
 
     return positions
+
+def validate_dna(sequence):
+    valid_bases = {"A", "T", "G", "C"}
+
+    for i, base in enumerate(sequence):
+        if base not in valid_bases:
+            print(f"Invalid nucleotide '{base}' at position {i + 1}")
+            return False
+
+    print("DNA sequence is valid.")
+    return True

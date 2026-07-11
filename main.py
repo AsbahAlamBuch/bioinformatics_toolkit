@@ -5,7 +5,8 @@ from src.dna import (
     reverse_complement,
     transcribe_dna,
     count_nucleotides,
-    find_motif
+    find_motif,
+    validate_dna,
 )
 
 from src.protein import translate_rna
@@ -15,6 +16,13 @@ records = read_fasta("data/sample.fasta")
 
 for record in records:
     dna = str(record.seq)
+    print(record.id)
+    print(dna)
+
+    if not validate_dna(dna):
+        continue
+
+
 
     length = get_sequence_length(dna)
     gc_content = calculate_gc_content(dna)
