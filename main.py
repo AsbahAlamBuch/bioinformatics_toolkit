@@ -11,7 +11,10 @@ from src.dna import (
     find_restriction_sites,
 )
 
-from src.protein import translate_rna
+from src.protein import (
+    translate_rna,
+    codon_usage
+)
 from src.fasta import read_fasta
 
 records = read_fasta("data/sample.fasta")
@@ -30,6 +33,7 @@ for record in records:
     gc_content = calculate_gc_content(dna)
 
     rna = transcribe_dna(dna)
+    usage = codon_usage(rna)
     protein = translate_rna(rna)
 
     reversed_dna = reverse_sequence(dna)
@@ -80,3 +84,8 @@ for enzyme, positions in restriction_sites.items():
         print(f"{enzyme}: Found at positions {positions}")
     else:
         print(f"{enzyme}: Not Found")
+
+print("\nCodon Usage")
+
+for codon, count in sorted(usage.items(), key=lambda x: x[1], reverse=True):
+    print(f"{codon} : {count}")
