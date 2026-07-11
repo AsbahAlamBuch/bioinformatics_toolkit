@@ -7,6 +7,7 @@ from src.dna import (
     count_nucleotides,
     find_motif,
     validate_dna,
+    find_orfs,
 )
 
 from src.protein import translate_rna
@@ -36,6 +37,8 @@ for record in records:
     motif = "GTA"
     positions = find_motif(dna, motif)
 
+    orfs = find_orfs(dna)
+
     print("=" * 60)
     print("Sequence ID:", record.id)
     print("DNA:", dna)
@@ -56,3 +59,12 @@ for record in records:
 
     count_nucleotides(dna)
     print()
+
+    print("ORFs:")
+
+    if orfs:
+        for start, end, seq in orfs:
+            print(f"Start: {start}, End: {end}")
+            print(seq)
+    else:
+        print("No ORFs found")

@@ -61,3 +61,22 @@ def validate_dna(sequence):
 
 def find_orfs(sequence):
     pass
+
+def find_orfs(sequence):
+    start_codon = "ATG"
+    stop_codons = ["TAA", "TAG", "TGA"]
+
+    orfs = []
+
+    for i in range(len(sequence) - 2):
+        codon = sequence[i:i+3]
+
+        if codon == start_codon:
+            for j in range(i + 3, len(sequence) - 2, 3):
+                stop = sequence[j:j+3]
+
+                if stop in stop_codons:
+                    orfs.append((i + 1, j + 3, sequence[i:j+3]))
+                    break
+
+    return orfs
