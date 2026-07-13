@@ -80,3 +80,16 @@ def find_orfs(sequence):
                     break
 
     return orfs
+
+def kmer_count(sequence, k):
+    kmers = {}
+
+    for i in range(len(sequence) - k + 1):
+        kmer = sequence[i:i + k]
+
+        if kmer in kmers:
+            kmers[kmer] += 1
+        else:
+            kmers[kmer] = 1
+
+    return kmers
