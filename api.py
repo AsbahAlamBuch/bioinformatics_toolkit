@@ -33,7 +33,6 @@ MAX_FASTA_SIZE = 10 * 1024 * 1024
 class SequenceRequest(BaseModel):
     sequence: str = Field(
         ...,
-        max_length=MAX_DNA_LENGTH,
         description="DNA sequence containing only A, T, G and C."
     )
 
