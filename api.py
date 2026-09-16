@@ -11,37 +11,148 @@ from src.fasta import read_fasta
 
 app = FastAPI(
     title="Bioinformatics Toolkit",
-    description="A modular toolkit for DNA and protein sequence analysis.",
+    description="A complete toolkit for DNA and protein sequence analysis.",
     version="1.0.0"
 )
 
 
-# Maximum FASTA upload size: 10 MB
+# -------------------------------------------------------------------
+# API limits
+# -------------------------------------------------------------------
+
+MAX_DNA_LENGTH = 100_000
+MAX_MOTIF_LENGTH = 100
+MAX_KMER_SIZE = 20
 MAX_FASTA_SIZE = 10 * 1024 * 1024
 
 
-class SequenceRequest(BaseModel):
-    sequence: str
-    motif: str = Field(default="GTA", min_length=1)
-    k: int = Field(default=3, gt=0)
+# -------------------------------------------------------------------
+# Request models
+# -------------------------------------------------------------------
 
+class SequenceRequest(BaseModel):
+    sequence: str = Field(
+        ...,
+        max_length=MAX_DNA_LENGTH,
+        description="DNA sequence containing only A, T, G and C."
+    )
+
+    motif: str = Field(
+        default="GTA",
+        max_length=MAX_MOTIF_LENGTH,
+        description="DNA motif to search for."
+    )
+
+    k: int = Field(
+        default=3,
+        gt=0,
+        le=MAX_KMER_SIZE,
+        description="K-mer size."
+    )
+
+
+# -------------------------------------------------------------------
+# Helper validation
+# -------------------------------------------------------------------
+
+def validate_motif(motif: str) -> str:
+    """Validate and normalize a DNA motif."""
+
+    if not motif:
+        raise HTTPException(
+            status_code=400,
+            detail="Motif cannot be empty."
+        )
+
+    motif = motif.upper()
+
+    if len(motif) > MAX_MOTIF_LENGTH:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid DNA motif."
+        )
+
+    if not all(base in "ATGC" for base in motif):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid DNA motif."
+        )
+
+    return motif
+
+
+def validate_k(k: int) -> int:
+    """Validate the k-mer size."""
+
+    if k <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="k must be greater than 0."
+        )
+
+    if k > MAX_KMER_SIZE:
+        raise HTTPException(
+            status_code=400,
+            detail=f"k is too large. Maximum k is {MAX_KMER_SIZE}."
+        )
+
+    return k
+
+
+# -------------------------------------------------------------------
+# Routes
+# -------------------------------------------------------------------
 
 @app.get("/")
 def root():
+    """Serve the web frontend."""
+
     return FileResponse(
         Path(__file__).parent / "frontend" / "index.html"
     )
 
 
+@app.get("/health")
+def health():
+    """Return a simple application health check."""
+
+    return {
+        "status": "healthy",
+        "service": "Bioinformatics Toolkit",
+        "version": "1.0.0"
+    }
+
+
 @app.post("/analyze")
 def analyze(request: SequenceRequest):
+    """Analyze a single DNA sequence."""
+
+    if not request.sequence:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid DNA sequence."
+        )
+
+    motif = validate_motif(request.motif)
+    k = validate_k(request.k)
+
+    sequence = request.sequence.upper()
+
+    if len(sequence) > MAX_DNA_LENGTH:
+        raise HTTPException(
+            status_code=413,
+            detail=(
+                f"DNA sequence is too long. "
+                f"Maximum length is {MAX_DNA_LENGTH} bases."
+            )
+        )
 
     try:
 
         results = analyze_sequence(
-            request.sequence,
-            motif=request.motif,
-            k=request.k
+            sequence,
+            motif=motif,
+            k=k
         )
 
         return results
@@ -60,6 +171,7 @@ async def analyze_fasta(
     motif: str = Form(default="GTA"),
     k: int = Form(default=3)
 ):
+    """Analyze all DNA sequences contained in a FASTA file."""
 
     if not file.filename:
 
@@ -77,31 +189,8 @@ async def analyze_fasta(
             detail="Please upload a FASTA file (.fasta, .fa, or .fna)."
         )
 
-    if not motif:
-
-        raise HTTPException(
-            status_code=400,
-            detail="Motif cannot be empty."
-        )
-
-    motif = motif.upper()
-
-    if not all(
-        base in "ATGC"
-        for base in motif
-    ):
-
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid DNA motif."
-        )
-
-    if k <= 0:
-
-        raise HTTPException(
-            status_code=400,
-            detail="k must be greater than 0."
-        )
+    motif = validate_motif(motif)
+    k = validate_k(k)
 
     temporary_path = None
 
@@ -137,7 +226,10 @@ async def analyze_fasta(
 
                     raise HTTPException(
                         status_code=413,
-                        detail="FASTA file is too large. Maximum size is 10 MB."
+                        detail=(
+                            "FASTA file is too large. "
+                            "Maximum size is 10 MB."
+                        )
                     )
 
                 temporary_file.write(chunk)
@@ -160,6 +252,19 @@ async def analyze_fasta(
             dna = str(
                 record.seq
             ).upper()
+
+            if len(dna) > MAX_DNA_LENGTH:
+
+                results.append({
+                    "id": record.id,
+                    "description": record.description,
+                    "error": (
+                        f"Sequence is too long. "
+                        f"Maximum length is {MAX_DNA_LENGTH} bases."
+                    )
+                })
+
+                continue
 
             try:
 
