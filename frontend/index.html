@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Bioinformatics Toolkit</title>
+<style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f6f8;
+            color: #1f2937;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 28px 20px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 30px;
+        }
+
+        header p {
+            margin: 8px 0 0;
+            color: #cbd5e1;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .input-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .input-card h2 {
+            margin-top: 0;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 180px;
+            resize: vertical;
+            padding: 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 15px;
+            outline: none;
+        }
+
+        textarea:focus {
+            border-color: #2563eb;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+            color: #6b7280;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: "";
+            height: 1px;
+            background: #e5e7eb;
+            flex: 1;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px dashed #9ca3af;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+
+        .file-name {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #results {
+            display: none;
+            margin-top: 30px;
+        }
+
+        .section {
+            margin-bottom: 15px;
+        }
+
+        .collapsible-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .section-title {
+            font-size: 21px;
+            margin: 0;
+        }
+
+        .collapsible-section > summary {
+            cursor: pointer;
+            list-style: none;
+            padding: 18px 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+
+        .collapsible-section > summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .collapsible-section > summary::after {
+            content: "\25B6";
+            font-size: 14px;
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-section[open] > summary::after {
+            transform: rotate(90deg);
+        }
+
+        .collapsible-content {
+            padding: 0 20px 20px;
+        }
+
+        .quick-jump {
+            position: sticky;
+            top: 10px;
+            z-index: 10;
+            margin-bottom: 15px;
+            background: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-jump label {
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .quick-jump select {
+            flex: 1;
+            padding: 8px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .data-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            overflow-x: auto;
+        }
+
+        .sequence {
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            line-height: 1.7;
+            max-width: 100%;
+            max-height: 320px;
+            overflow: auto;
+            padding: 10px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f9fafb;
+        }
+
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 8px;
+        }
+
+        .loading {
+            margin-top: 20px;
+            color: #4b5563;
+        }
+
+        .fasta-results {
+            margin-top: 30px;
+        }
+
+        .sequence-result {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .sequence-result h3 {
+            margin-top: 0;
+        }
+
+        @media (max-width: 800px) {
+
+            .cards {
+                grid-template-columns: 1fr;
+            }
+
+            .quick-jump {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+        }
+
+    </style>
+</head>
+<body>
+<header>
+<div class="container">
+<h1>Bioinformatics Toolkit</h1>
+<p>
+            DNA and protein sequence analysis
+        </p>
+</div>
+</header>
+<div class="container">
+<div class="input-card">
+<h2>Sequence Analysis</h2>
+<p>
+            Enter a DNA sequence or upload a FASTA file.
+        </p>
+<textarea id="sequence" placeholder="Example: ATGCGTAGCTAGCTAGCTAGCTAGCTAGCTA"></textarea>
+<div class="analysis-options">
+<div>
+<label for="motifInput">Motif</label>
+<input id="motifInput" maxlength="50" type="text" value="GTA"/>
+</div>
+<div>
+<label for="kmer">K-mer Size</label>
+<input id="kmer" max="20" min="1" type="number" value="3"/>
+</div>
+</div>
+<div class="divider">
+            OR
+        </div>
+<input accept=".fasta,.fa,.fna" class="file-input" id="fastaFile" onchange="showFileName()" type="file"/>
+<div class="file-name" id="fileName">
+</div>
+<button onclick="analyzeSequence()">
+            Analyze Sequence
+        </button>
+<button onclick="analyzeFASTA()" style="margin-left: 10px;">
+            Analyze FASTA
+        </button>
+<div id="status"></div>
+</div>
+<div class="quick-jump" id="quickJump"><label for="sectionJump">Quick Jump</label><select id="sectionJump" onchange="jumpToSection()"><option value="">Select a section...</option><option value="section-sequence-overview">Sequence Overview</option><option value="section-nucleotide-composition">Nucleotide Composition</option><option value="section-sequence-transformations">Sequence Transformations</option><option value="section-protein-analysis">Protein Analysis</option><option value="section-amino-acid-composition">Amino Acid Composition</option><option value="section-codon-usage">Codon Usage</option><option value="section-motif-search">Motif Search</option><option value="section-orfs">ORFs</option><option value="section-restriction-enzyme-sites">Restriction Enzyme Sites</option><option value="section-3-mer-frequencies">3-mer Frequencies</option></select></div><div id="results">
+<details class="section collapsible-section" id="section-sequence-overview" open="True"><summary class="section-title">Sequence Overview</summary><div class="collapsible-content">
+
+<div class="cards">
+<div class="card">
+<div class="card-label">
+                        Sequence Length
+                    </div>
+<div class="card-value" id="sequenceLength">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        GC Content
+                    </div>
+<div class="card-value" id="gcContent">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        Melting Temperature
+                    </div>
+<div class="card-value" id="meltingTemperature">
+                        -
+                    </div>
+</div>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-nucleotide-composition"><summary class="section-title">Nucleotide Composition</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>Nucleotide</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="nucleotideTable"></tbody>
+</table>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-sequence-transformations"><summary class="section-title">Sequence Transformations</summary><div class="collapsible-content">
+
+<div class="data-box">
+<p>
+<strong>Reverse Sequence</strong>
+</p>
+<p class="sequence" id="reverseSequence"></p>
+<p>
+<strong>Reverse Complement</strong>
+</p>
+<p class="sequence" id="reverseComplement"></p>
+<p>
+<strong>RNA Sequence</strong>
+</p>
+<p class="sequence" id="rnaSequence"></p>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-protein-analysis"><summary class="section-title">Protein Analysis</summary><div class="collapsible-content">
+
+<div class="cards">
+<div class="card">
+<div class="card-label">
+                        Protein Length
+                    </div>
+<div class="card-value" id="proteinLength">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        Molecular Weight
+                    </div>
+<div class="card-value" id="molecularWeight">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        Estimated pI
+                    </div>
+<div class="card-value" id="isoelectricPoint">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        GRAVY Score
+                    </div>
+<div class="card-value" id="gravyScore">
+                        -
+                    </div>
+</div>
+<div class="card">
+<div class="card-label">
+                        Instability Index
+                    </div>
+<div class="card-value" id="instabilityIndex">
+                        -
+                    </div>
+</div>
+</div>
+<div class="data-box" style="margin-top: 15px;">
+<p>
+<strong>Protein Sequence</strong>
+</p>
+<p class="sequence" id="proteinSequence"></p>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-amino-acid-composition"><summary class="section-title">Amino Acid Composition</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>Amino Acid</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="aminoAcidTable"></tbody>
+</table>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-codon-usage"><summary class="section-title">Codon Usage</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>Codon</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="codonTable"></tbody>
+</table>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-motif-search"><summary class="section-title">Motif Search</summary><div class="collapsible-content">
+
+<div class="data-box">
+<p>
+                    Motif:
+                    <strong id="motif"></strong>
+</p>
+<p>
+                    Positions:
+                    <span id="motifPositions"></span>
+</p>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-orfs"><summary class="section-title">ORFs</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>Start</th>
+<th>End</th>
+<th>Strand</th>
+<th>ORF Sequence</th>
+</tr>
+</thead>
+<tbody id="orfTable"></tbody>
+</table>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-restriction-enzyme-sites"><summary class="section-title">Restriction Enzyme Sites</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>Enzyme</th>
+<th>Positions</th>
+</tr>
+</thead>
+<tbody id="restrictionTable"></tbody>
+</table>
+</div>
+</div></details>
+<details class="section collapsible-section" id="section-3-mer-frequencies"><summary class="section-title">3-mer Frequencies</summary><div class="collapsible-content">
+
+<div class="data-box">
+<table>
+<thead>
+<tr>
+<th>3-mer</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody id="kmerTable"></tbody>
+</table>
+</div>
+</div></details>
+</div>
+<div class="fasta-results" id="fastaResults"></div>
+</div>
+<script>
+
+
+function showFileName() {
+
+    const fileInput =
+        document.getElementById("fastaFile");
+
+    const fileName =
+        document.getElementById("fileName");
+
+
+    if (fileInput.files.length > 0) {
+
+        fileName.textContent =
+            "Selected file: " +
+            fileInput.files[0].name;
+
+    } else {
+
+        fileName.textContent = "";
+
+    }
+
+}
+
+
+function jumpToSection() {
+
+    const select = document.getElementById("sectionJump");
+    const sectionId = select.value;
+
+    if (!sectionId) {
+        return;
+    }
+
+    const section = document.getElementById(sectionId);
+
+    if (section) {
+        section.open = true;
+        section.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+}
+
+
+async function analyzeSequence() {
+
+    const sequence =
+        document.getElementById("sequence").value.trim();
+
+    const status =
+        document.getElementById("status");
+
+    const results =
+        document.getElementById("results");
+
+
+    results.style.display = "none";
+
+    status.className = "";
+    status.textContent = "";
+
+
+    if (!sequence) {
+
+        status.className = "error";
+
+        status.textContent =
+            "Please enter a DNA sequence.";
+
+        return;
+
+    }
+
+
+    status.className = "loading";
+
+    status.textContent =
+        "Analyzing sequence...";
+
+
+    try {
+
+        const response = await fetch(
+            "/analyze",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+    sequence: sequence,
+    motif: document.getElementById("motifInput").value,
+    k: Number(document.getElementById("kmer").value)
+                })
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail || "Analysis failed."
+            );
+
+        }
+
+
+        displayResults(data);
+
+
+        status.textContent = "";
+
+        results.style.display = "block";
+
+
+    } catch (error) {
+
+        status.className = "error";
+
+        status.textContent =
+            "Error: " + error.message;
+
+    }
+
+}
+
+
+async function analyzeFASTA() {
+
+    const fileInput =
+        document.getElementById("fastaFile");
+
+    const status =
+        document.getElementById("status");
+
+    const fastaResults =
+        document.getElementById("fastaResults");
+
+    const motifInput =
+        document.getElementById("motifInput");
+
+    const kmerInput =
+        document.getElementById("kmer");
+
+
+    fastaResults.innerHTML = "";
+
+
+    if (fileInput.files.length === 0) {
+
+        status.className = "error";
+
+        status.textContent =
+            "Please select a FASTA file.";
+
+        return;
+
+    }
+
+
+    const motif = motifInput.value.trim().toUpperCase();
+    const k = Number(kmerInput.value);
+
+
+    if (!motif) {
+
+        status.className = "error";
+
+        status.textContent =
+            "Motif cannot be empty.";
+
+        return;
+
+    }
+
+
+    if (k <= 0 || !Number.isInteger(k)) {
+
+        status.className = "error";
+
+        status.textContent =
+            "K-mer size must be a positive integer.";
+
+        return;
+
+    }
+
+
+    status.className = "loading";
+
+    status.textContent =
+        "Analyzing FASTA file...";
+
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "file",
+        fileInput.files[0]
+    );
+
+    formData.append(
+        "motif",
+        motif
+    );
+
+    formData.append(
+        "k",
+        k
+    );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/analyze-fasta",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.detail || "FASTA analysis failed."
+            );
+
+        }
+
+
+        displayFASTAResults(data);
+
+
+        status.textContent = "";
+
+
+    } catch (error) {
+
+        status.className = "error";
+
+        status.textContent =
+            "Error: " + error.message;
+
+    }
+
+}
+
+
+function displayFASTAResults(data) {
+
+    const container =
+        document.getElementById(
+            "fastaResults"
+        );
+
+
+    container.innerHTML = "";
+
+
+    const heading =
+        document.createElement("h2");
+
+    heading.className =
+        "section-title";
+
+    heading.textContent =
+        "FASTA Analysis: " +
+        data.sequence_count +
+        " sequence(s)";
+
+
+    container.appendChild(heading);
+
+
+    data.sequences.forEach(
+        function(sequenceData) {
+
+            const box =
+                document.createElement("div");
+
+            box.className =
+                "sequence-result";
+
+
+            const title =
+                document.createElement("h3");
+
+            title.textContent =
+                sequenceData.id;
+
+            box.appendChild(title);
+
+
+            if (sequenceData.error) {
+
+                const error =
+                    document.createElement("div");
+
+                error.className = "error";
+
+                error.textContent =
+                    sequenceData.error;
+
+                box.appendChild(error);
+
+                container.appendChild(box);
+                return;
+
+            }
+
+
+            const analysis =
+                sequenceData.analysis;
+
+
+            const summary =
+                document.createElement("p");
+
+            summary.innerHTML =
+                "<strong>Length:</strong> " +
+                analysis.sequence_length +
+                " bp &nbsp;&nbsp; " +
+
+                "<strong>GC Content:</strong> " +
+                analysis.gc_content +
+                "% &nbsp;&nbsp; " +
+
+                "<strong>Tm:</strong> " +
+                analysis.melting_temperature +
+                " °C";
+
+            box.appendChild(summary);
+
+
+            const protein =
+                document.createElement("p");
+
+            protein.className = "sequence";
+
+            protein.innerHTML =
+                "<strong>Protein:</strong> " +
+                analysis.protein_sequence;
+
+            box.appendChild(protein);
+
+
+            const details =
+                document.createElement("p");
+
+            details.innerHTML =
+                "<strong>Protein Length:</strong> " +
+                analysis.protein_length +
+                " aa &nbsp;&nbsp; " +
+
+                "<strong>Molecular Weight:</strong> " +
+                analysis.molecular_weight +
+                " Da &nbsp;&nbsp; " +
+
+                "<strong>pI:</strong> " +
+                analysis.isoelectric_point +
+                " &nbsp;&nbsp; " +
+
+                "<strong>GRAVY:</strong> " +
+                analysis.gravy_score +
+                " &nbsp;&nbsp; " +
+
+                "<strong>Instability:</strong> " +
+                analysis.instability_index;
+
+            box.appendChild(details);
+
+
+            addFASTATable(
+                box,
+                "Nucleotide Composition",
+                analysis.nucleotide_counts,
+                "Nucleotide",
+                "Count"
+            );
+
+
+            addFASTATable(
+                box,
+                "Amino Acid Composition",
+                analysis.amino_acid_composition,
+                "Amino Acid",
+                "Count"
+            );
+
+
+            addFASTATable(
+                box,
+                "Codon Usage",
+                analysis.codon_usage,
+                "Codon",
+                "Count"
+            );
+
+
+            addFASTATable(
+                box,
+                "K-mer Frequencies",
+                analysis.kmer_frequencies,
+                "K-mer",
+                "Count"
+            );
+
+
+            const motifSection =
+                document.createElement("details");
+
+            motifSection.className = "collapsible-section";
+            motifSection.style.marginTop = "20px";
+
+            const motifSummary =
+                document.createElement("summary");
+
+            motifSummary.className = "section-title";
+            motifSummary.textContent = "Motif Search";
+            motifSection.appendChild(motifSummary);
+
+            const motifContent =
+                document.createElement("div");
+
+            motifContent.className = "collapsible-content";
+            motifContent.innerHTML =
+                "<p><strong>Motif:</strong> " +
+                analysis.motif_search.motif +
+                " &nbsp;&nbsp; " +
+                "<strong>Positions:</strong> " +
+                (analysis.motif_search.positions.length
+                    ? analysis.motif_search.positions.join(", ")
+                    : "Not found") +
+                "</p>";
+
+            motifSection.appendChild(motifContent);
+            box.appendChild(motifSection);
+
+
+            addORFTable(
+                box,
+                analysis.orfs
+            );
+
+
+            addRestrictionTable(
+                box,
+                analysis.restriction_sites
+            );
+
+
+            container.appendChild(box);
+
+        }
+    );
+
+}
+
+
+function addFASTATable(
+    parent,
+    title,
+    data,
+    firstHeader,
+    secondHeader
+) {
+
+    const section =
+        document.createElement("details");
+
+    section.className = "collapsible-section";
+    section.style.marginTop = "20px";
+
+    const heading =
+        document.createElement("summary");
+
+    heading.className = "section-title";
+    heading.textContent = title;
+
+    section.appendChild(heading);
+
+    const content =
+        document.createElement("div");
+
+    content.className = "collapsible-content";
+    section.appendChild(content);
+
+    const table =
+        document.createElement("table");
+
+    table.innerHTML =
+        "<thead><tr><th>" +
+        firstHeader +
+        "</th><th>" +
+        secondHeader +
+        "</th></tr></thead>" +
+        "<tbody></tbody>";
+
+    const tbody =
+        table.querySelector("tbody");
+
+    const entries =
+        Object.entries(data).sort();
+
+    if (entries.length === 0) {
+
+        tbody.innerHTML =
+            "<tr><td colspan='2'>No data</td></tr>";
+
+    } else {
+
+        entries.forEach(
+            function([key, value]) {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML =
+                    "<td>" + key +
+                    "</td><td>" + value +
+                    "</td>";
+
+                tbody.appendChild(row);
+
+            }
+        );
+
+    }
+
+    content.appendChild(table);
+    parent.appendChild(section);
+
+}
+
+
+function addORFTable(parent, orfs) {
+
+    const section =
+        document.createElement("details");
+
+    section.className = "collapsible-section";
+    section.style.marginTop = "20px";
+
+    const heading =
+        document.createElement("summary");
+
+    heading.className = "section-title";
+    heading.textContent = "ORF Information";
+    section.appendChild(heading);
+
+    const content =
+        document.createElement("div");
+
+    content.className = "collapsible-content";
+    section.appendChild(content);
+
+    const table =
+        document.createElement("table");
+
+    table.innerHTML =
+        "<thead><tr><th>Start</th><th>End</th><th>Strand</th><th>ORF Sequence</th></tr></thead>" +
+        "<tbody></tbody>";
+
+    const tbody =
+        table.querySelector("tbody");
+
+    if (orfs.length === 0) {
+
+        tbody.innerHTML =
+            "<tr><td colspan='4'>No ORFs found</td></tr>";
+
+    } else {
+
+        orfs.forEach(
+            function(orf) {
+
+                const row =
+                    document.createElement("tr");
+
+                const strand = orf[0] < orf[1]
+                    ? "Forward (+)"
+                    : "Reverse (-)";
+
+                row.innerHTML = `
+                    <td>${orf[0]}</td>
+                    <td>${orf[1]}</td>
+                    <td>${strand}</td>
+                    <td class="sequence">${orf[2]}</td>
+                `;
+
+                tbody.appendChild(row);
+
+            }
+        );
+
+    }
+
+    content.appendChild(table);
+    parent.appendChild(section);
+
+}
+
+
+function addRestrictionTable(parent, restrictionSites) {
+
+    const section =
+        document.createElement("details");
+
+    section.className = "collapsible-section";
+    section.style.marginTop = "20px";
+
+    const heading =
+        document.createElement("summary");
+
+    heading.className = "section-title";
+    heading.textContent =
+        "Restriction Enzyme Sites";
+
+    section.appendChild(heading);
+
+    const content =
+        document.createElement("div");
+
+    content.className = "collapsible-content";
+    section.appendChild(content);
+
+    const table =
+        document.createElement("table");
+
+    table.innerHTML =
+        "<thead><tr><th>Enzyme</th><th>Positions</th></tr></thead>" +
+        "<tbody></tbody>";
+
+    const tbody =
+        table.querySelector("tbody");
+
+    const entries =
+        Object.entries(restrictionSites);
+
+    if (entries.length === 0) {
+
+        tbody.innerHTML =
+            "<tr><td colspan='2'>No restriction sites found</td></tr>";
+
+    } else {
+
+        entries.forEach(
+            function([enzyme, positions]) {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML =
+                    "<td>" + enzyme +
+                    "</td><td>" +
+                    positions.join(", ") +
+                    "</td>";
+
+                tbody.appendChild(row);
+
+            }
+        );
+
+    }
+
+    content.appendChild(table);
+    parent.appendChild(section);
+
+}
+
+
+function displayResults(data) {
+
+
+    document.getElementById(
+        "sequenceLength"
+    ).textContent =
+        data.sequence_length + " bp";
+
+
+    document.getElementById(
+        "gcContent"
+    ).textContent =
+        data.gc_content + "%";
+
+
+    document.getElementById(
+        "meltingTemperature"
+    ).textContent =
+        data.melting_temperature + " °C";
+
+
+    document.getElementById(
+        "reverseSequence"
+    ).textContent =
+        data.reverse_sequence;
+
+
+    document.getElementById(
+        "reverseComplement"
+    ).textContent =
+        data.reverse_complement;
+
+
+    document.getElementById(
+        "rnaSequence"
+    ).textContent =
+        data.rna_sequence;
+
+
+    document.getElementById(
+        "proteinSequence"
+    ).textContent =
+        data.protein_sequence;
+
+
+    document.getElementById(
+        "proteinLength"
+    ).textContent =
+        data.protein_length + " aa";
+
+
+    document.getElementById(
+        "molecularWeight"
+    ).textContent =
+        data.molecular_weight + " Da";
+
+
+    document.getElementById(
+        "isoelectricPoint"
+    ).textContent =
+        data.isoelectric_point;
+
+
+    document.getElementById(
+        "gravyScore"
+    ).textContent =
+        data.gravy_score;
+
+
+    document.getElementById(
+        "instabilityIndex"
+    ).textContent =
+        data.instability_index;
+
+
+    fillTable(
+        "nucleotideTable",
+        data.nucleotide_counts
+    );
+
+
+    fillTable(
+        "aminoAcidTable",
+        data.amino_acid_composition
+    );
+
+
+    fillTable(
+        "codonTable",
+        data.codon_usage
+    );
+
+
+    fillTable(
+        "kmerTable",
+        data.kmer_frequencies
+    );
+
+
+    document.getElementById(
+        "motif"
+    ).textContent =
+        data.motif_search.motif;
+
+
+    document.getElementById(
+        "motifPositions"
+    ).textContent =
+        data.motif_search.positions.length
+            ? data.motif_search.positions.join(", ")
+            : "Not found";
+
+
+    const orfTable =
+        document.getElementById("orfTable");
+
+    orfTable.innerHTML = "";
+
+
+    if (data.orfs.length === 0) {
+
+        orfTable.innerHTML =
+            "<tr><td colspan='4'>No ORFs found</td></tr>";
+
+    } else {
+
+        data.orfs.forEach(
+            function(orf) {
+
+                const row =
+                    document.createElement("tr");
+
+                const strand = orf[0] < orf[1]
+                    ? "Forward (+)"
+                    : "Reverse (-)";
+
+                row.innerHTML = `
+                    <td>${orf[0]}</td>
+                    <td>${orf[1]}</td>
+                    <td>${strand}</td>
+                    <td class="sequence">${orf[2]}</td>
+                `;
+
+                orfTable.appendChild(row);
+
+            }
+        );
+
+    }
+
+
+    const restrictionTable =
+        document.getElementById(
+            "restrictionTable"
+        );
+
+    restrictionTable.innerHTML = "";
+
+
+    const enzymes =
+        Object.entries(
+            data.restriction_sites
+        );
+
+
+    if (enzymes.length === 0) {
+
+        restrictionTable.innerHTML =
+            "<tr><td colspan='2'>No restriction sites found</td></tr>";
+
+    } else {
+
+        enzymes.forEach(
+            function([enzyme, positions]) {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${enzyme}</td>
+                    <td>${positions.join(", ")}</td>
+                `;
+
+                restrictionTable.appendChild(row);
+
+            }
+        );
+
+    }
+
+}
+
+
+function fillTable(tableId, data) {
+
+    const table =
+        document.getElementById(tableId);
+
+    table.innerHTML = "";
+
+
+    Object.entries(data)
+        .sort()
+        .forEach(
+            function([key, value]) {
+
+                const row =
+                    document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${key}</td>
+                    <td>${value}</td>
+                `;
+
+                table.appendChild(row);
+
+            }
+        );
+
+}
+
+
+</script>
+</body>
+</html>

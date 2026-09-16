@@ -1,72 +1,193 @@
+from typing import Dict
+
 from Bio.Seq import Seq
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
 
 
-def translate_rna(rna):
-    return str(Seq(rna).translate())
+VALID_AMINO_ACIDS = set(
+    "ARNDCQEGHILKMFPSTWYV"
+)
 
-def codon_usage(rna):
-    codons = {}
 
-    for i in range(0, len(rna) - 2, 3):
-        codon = rna[i:i+3]
+def validate_protein(protein: str) -> bool:
+    """Check whether a protein sequence contains valid amino acids."""
 
-        if codon in codons:
-            codons[codon] += 1
-        else:
-            codons[codon] = 1
+    if not protein:
+        return False
 
-    return codons
+    protein = protein.upper()
 
-def amino_acid_composition(protein):
+    return all(
+        amino_acid in VALID_AMINO_ACIDS
+        for amino_acid in protein
+    )
+
+
+def translate_rna(rna: str) -> str:
+    """Translate an RNA sequence into a protein sequence."""
+
+    if not rna:
+        return ""
+
+    rna = rna.upper()
+
+    if any(base not in "AUGC" for base in rna):
+        raise ValueError("Invalid RNA sequence.")
+
+    # Ignore incomplete trailing nucleotides.
+    complete_length = len(rna) - (len(rna) % 3)
+
+    rna = rna[:complete_length]
+
+    if not rna:
+        return ""
+
+    return str(
+        Seq(rna).translate(
+            to_stop=False
+        )
+    )
+
+
+def amino_acid_composition(
+    protein: str
+) -> Dict[str, int]:
+    """
+    Calculate amino acid composition.
+
+    Only amino acids actually present in the sequence
+    are included in the returned dictionary.
+    """
+
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
+
+    protein = protein.upper()
+
     composition = {}
 
     for amino_acid in protein:
-        if amino_acid in composition:
-            composition[amino_acid] += 1
-        else:
-            composition[amino_acid] = 1
+
+        composition[amino_acid] = (
+            composition.get(amino_acid, 0) + 1
+        )
 
     return composition
 
-AMINO_ACID_MASS = {
-    "A": 89.09,
-    "R": 174.20,
-    "N": 132.12,
-    "D": 133.10,
-    "C": 121.15,
-    "Q": 146.15,
-    "E": 147.13,
-    "G": 75.07,
-    "H": 155.16,
-    "I": 131.17,
-    "L": 131.17,
-    "K": 146.19,
-    "M": 149.21,
-    "F": 165.19,
-    "P": 115.13,
-    "S": 105.09,
-    "T": 119.12,
-    "W": 204.23,
-    "Y": 181.19,
-    "V": 117.15,
-}
 
-def molecular_weight(protein):
-    weight = 0
+def molecular_weight(
+    protein: str
+) -> float:
+    """Calculate molecular weight of a protein in Daltons."""
 
-    for aa in protein:
-        if aa in AMINO_ACID_MASS:
-            weight += AMINO_ACID_MASS[aa]
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
 
-    return round(weight, 2)
+    analysis = ProteinAnalysis(
+        protein.upper()
+    )
 
-def codon_usage(sequence):
+    return round(
+        analysis.molecular_weight(),
+        2
+    )
+
+
+def calculate_gravy(
+    protein: str
+) -> float:
+    """Calculate the GRAVY hydropathy score."""
+
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
+
+    analysis = ProteinAnalysis(
+        protein.upper()
+    )
+
+    return round(
+        analysis.gravy(),
+        3
+    )
+
+
+def calculate_pI(
+    protein: str
+) -> float:
+    """Calculate the theoretical isoelectric point."""
+
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
+
+    analysis = ProteinAnalysis(
+        protein.upper()
+    )
+
+    return round(
+        analysis.isoelectric_point(),
+        2
+    )
+
+
+def get_protein_length(
+    protein: str
+) -> int:
+    """Return the length of a valid protein sequence."""
+
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
+
+    return len(protein)
+
+
+def calculate_instability_index(
+    protein: str
+) -> float:
+    """Calculate the protein instability index."""
+
+    if not validate_protein(protein):
+        raise ValueError("Invalid protein sequence.")
+
+    analysis = ProteinAnalysis(
+        protein.upper()
+    )
+
+    return round(
+        analysis.instability_index(),
+        2
+    )
+
+
+def codon_usage(
+    rna: str
+) -> Dict[str, int]:
+    """
+    Count codon usage in an RNA sequence.
+
+    Incomplete trailing nucleotides are ignored.
+    """
+
+    if not rna:
+        return {}
+
+    rna = rna.upper()
+
+    if any(base not in "AUGC" for base in rna):
+        raise ValueError("Invalid RNA sequence.")
+
     usage = {}
 
-    for i in range(0, len(sequence) - 2, 3):
-        codon = sequence[i:i+3]
+    for i in range(
+        0,
+        len(rna) - 2,
+        3
+    ):
 
-        if len(codon) == 3:
-            usage[codon] = usage.get(codon, 0) + 1
+        codon = rna[i:i + 3]
+
+        usage[codon] = usage.get(
+            codon,
+            0
+        ) + 1
 
     return usage
